@@ -19,9 +19,11 @@ class april_tag_detector(Node):
             10
         )
 
+        self.bridge = CvBridge()
+
+
     def camera_callback(self, msg):
-        bridge = CvBridge()
-        img = bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+        img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         
         img = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
         at_detector = Detector(families='tag36h11', #change later after we know what the families are
@@ -31,4 +33,6 @@ class april_tag_detector(Node):
                             refine_edges=1,
                             decode_sharpening=0.25,
                             debug=0)
-        tags = at_detector.detect(img, estimate_tag_pose=False, camera_params=None, tag_size=None)
+        tags = at_detector.detect(img, estimate_tag_pose=True, camera_params=None, tag_size=None)
+
+        

@@ -19,12 +19,14 @@ class image_saver(Node):
             10
         )
 
+        self.bridge = CvBridge()
+
     def image_callback(self, msg):
         self.get_logger().info(f"image saved {self.num}")
         self.num += 1
 
         img = msg.data
-        img = CvBridge.imgmsg_to_cv2(img)
+        img = self.bridge.imgmsg_to_cv2(img)
 
         cv2.imwrite(f"image_{self.num}.png", img)
 
