@@ -16,7 +16,7 @@ class lane_following(Node):
 
         self.pub_lateral = self.create_publisher(
             Int16,
-            "/lane_following",
+            "/target_y",
             10
         )
 
@@ -41,7 +41,7 @@ class lane_following(Node):
         self.last_error = 0.0
         
     def camera_callback(self, msg):
-        img = np.array(msg.data)
+        img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         img = lane_detection.crop_half(img)
         self.IMAGE_WIDTH = msg.width
         self.IMAGE_HEIGHT = msg.height
@@ -62,6 +62,8 @@ class lane_following(Node):
             msg.data = 20
         self.pub_relative_heading.publish(msg)
 
+        self.get_logger().info(recommended)
+
         error = self.IMAGE_WIDTH // 2 - intercept
 
         if error < 25:
@@ -71,8 +73,11 @@ class lane_following(Node):
             relative_angle = np.pi / 2 - angle_line
 
             msg.data = int(relative_angle)
+            self.get_logger().info("centered lane")
             self.pub_relative_heading(msg)
         else:
+            self.get_logger().info(error)
+            
             dt = time() - self.last_time
             self.integral += max(-20.0, min(20.0, dt*error))
             
@@ -83,3 +88,16 @@ class lane_following(Node):
             self.last_time = time()
 
             self.publish_lateral(output)
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = lane_following()    
+
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        print("\nKeyboardInterrupt received, shutting down...")
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()

@@ -25,8 +25,7 @@ class image_saver(Node):
         self.get_logger().info(f"image saved {self.num}")
         self.num += 1
 
-        img = msg.data
-        img = self.bridge.imgmsg_to_cv2(img)
+        img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
 
         cv2.imwrite(f"image_{self.num}.png", img)
 
