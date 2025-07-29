@@ -66,6 +66,8 @@ class depth_hold(Node):
         self.last_error = error
         self.last_time = time()
 
+        self.get_logger().warn("output: " + str(-output))
+
         self.publish_depth_move(-output)
 
     def get_target_depth(self, msg):

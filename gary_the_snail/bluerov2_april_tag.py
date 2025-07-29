@@ -6,7 +6,7 @@ from sensor_msgs.msg import Image
 from dt_apriltags import Detector
 import cv2
 from cv_bridge import CvBridge
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Bool, Int16, Float32
 
 import yaml
 import numpy as np
@@ -14,12 +14,6 @@ import numpy as np
 class april_tag_detector(Node):
     def __init__(self):
         super().__init__("april_tag_detector")
-
-        # with open("/full_path_to/blue_rov_camera.yaml", 'r') as f: # replace with your saved path from previous step
-        #     calib_data = yaml.safe_load(f)
-
-        # self.K = np.array(calib_data["camera_matrix"]["data"]).reshape((3, 3))  # fx, 0, cx, 0, fy, cy, 0, 0, 1
-        # self.D = np.array(calib_data["distortion_coefficients"]["data"])        # [k1, k2, p1, p2, k3]
 
         self.at_detector = Detector(
             families='tag36h11', 
@@ -31,11 +25,12 @@ class april_tag_detector(Node):
             debug=0
         )
 
-        # # Camera intrinsics for pose estimation
-        # self.fx = self.K[0, 0]
-        # self.fy = self.K[1, 1]
-        # self.cx = self.K[0, 2]
-        # self.cy = self.K[1, 2]
+        self.valid_back = [18]
+
+        self.fx = 273.25
+        self.fy = 261.76
+        self.cx = 307.89
+        self.cy = 153.84
 
         self.sub_camera = self.create_subscription(
             Image,
@@ -46,43 +41,140 @@ class april_tag_detector(Node):
 
         self.bridge = CvBridge()
 
-        self.pub_tags = self.create_publisher(
-            Float32MultiArray,
-            "/tags",
+        self.pub_lights = self.create_publisher(
+            Bool,
+            "flash",
             10
         )
 
+        self.pub_heading = self.create_publisher(
+            Int16,
+            "relative_heading",
+            10
+        )
+        
+        self.pub_speed = self.create_publisher(
+            Float32,
+            "target_x",
+            10
+        )
 
     def camera_callback(self, msg):
-        self.get_logger().info("hi")
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-
-        # # Get optimal new camera matrix
-        # h, w = img.shape[:2]
-        # new_K, _ = cv2.getOptimalNewCameraMatrix(self.K, self.D, (w, h), 1, (w, h))
-
-        # # Undistort the image
-        # undistorted = cv2.undistort(img, self.K, self.D, None, new_K)
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # change img to undistorted
 
         tags = self.at_detector.detect(
             gray, 
-            estimate_tag_pose=False, 
-            camera_params=None, 
+            estimate_tag_pose=True, 
+            camera_params=(self.fx, self.fy, self.cx, self.cy), 
             tag_size=0.1
         )
 
-        for tag in tags:
-            msg = Float32MultiArray()
+        # if two tags are both robot tags then go toward the middle
+        # do we care if theyre on the back 
 
-            # msg.data = [float(tag.tag_id)] + [float(t) for t in tag.pose_t.flatten()] + [float(t) for t in tag.pose_R]
+        robot_tags = []
+        for tag in tags:
             print(f"Detected tag ID: {tag.tag_id}")
-            # print("Translation (t):", tag.pose_t.flatten())
-            # print("Rotation matrix (R):\n", tag.pose_R)
+            print("Translation (t):", tag.pose_t.flatten())
+            print("Rotation matrix (R):\n", tag.pose_R) 
+            if tag.tag_id in self.valid_back:
+                robot_tags.append(tag)
+
+                if np.linalg.norm(tag.pose_t.flatten()) <= 1: #yes
+                    # flashlight on
+                    msg = Bool()
+                    msg.data = True
+                    self.pub_lights.publish(msg)
+        
+        # average_yaw = 0
+        # if len(robot_tags) == 2:
+        #     average_yaw = (robot_tags[0].pose_R[2] + robot_tags[1].pose_R[2]) / 2
+
+        # if len(robot_tags) > 0:
+        #     average_yaw = robot_tags[0].pose_R[2]
+        #     msg = Int16() 
+        #     msg.data = average_yaw
+
+        #     self.pub_heading.publish(msg)
+
+        #     vert_dist = np.sin(np.radians(robot_tags[0].pose_R[1]))
+        #     msg = Float32()
+        #     msg.data = -vert_dist
+
+        #     self.pub_depth.publish(msg)
+
+        #     msg = Int16()
+        #     msg.data = 30
+        #     if np.linalg.norm(robot_tags[0].pose_t.flatten()) < 0.2:
+        #         msg.data = 0
+        #     self.pub_speed.publish(msg)
+        # else:
+        #     print("no robot fetected")
+
+        #     msg = Float32()
+        #     msg.data = 0.0
+        #     self.pub_speed.publish(msg)
+        #     # yse fetected
+        #     # yse nlo
+        #     # nlo :P)  :)
+        #     # ඞ
+        
+        def rotation_matrix_to_euler(R):
+            """
+            Extract yaw, pitch, roll from 3x3 rotation matrix using ZYX convention
+            Returns angles in degrees
+            """
+            # Check for gimbal lock
+            if abs(R[2, 0]) < 0.99999:  # Normal case
+                pitch = np.arcsin(-R[2, 0])
+                yaw = np.arctan2(R[1, 0], R[0, 0])
+                roll = np.arctan2(R[2, 1], R[2, 2])
+            else:  # Gimbal lock
+                roll = 0
+                if R[2, 0] < 0:
+                    pitch = np.pi / 2
+                    yaw = np.arctan2(R[0, 1], R[1, 1])
+                else:
+                    pitch = -np.pi / 2
+                    yaw = np.arctan2(-R[0, 1], R[1, 1])
+            
+            # Convert to degrees
+            print(f"Yaw: {np.degrees(yaw)}, Pitch: {np.degrees(pitch)}, Roll: {np.degrees(roll)}")
+            return np.degrees(yaw), np.degrees(pitch), np.degrees(roll)
+
+        # Your corrected code:
+        average_yaw = 0
+        if len(robot_tags) == 2:
+            yaw1, _, _ = rotation_matrix_to_euler(robot_tags[0].pose_R)
+            yaw2, _, _ = rotation_matrix_to_euler(robot_tags[1].pose_R)
+            average_yaw = (yaw1 + yaw2) / 2
+
+        if len(robot_tags) > 0:
+            yaw, pitch, roll = rotation_matrix_to_euler(robot_tags[0].pose_R)
+            average_yaw = yaw
+            
+            msg = Int16() 
+            msg.data = int(average_yaw)  # Convert to int for Int16
+            self.pub_heading.publish(msg)
+ 
+
+            msg = Float32()
+            msg.data = 30.0
+            if np.linalg.norm(robot_tags[0].pose_t.flatten()) < 0.2:
+                msg.data = 0.0
+            self.pub_speed.publish(msg)
+
+        else:
+            print("no robot detected")
+            msg = Float32()
+            msg.data = 0.0
+            self.pub_speed.publish(msg)
 
 def main(args=None):
     rclpy.init(args=args)
+    
     node = april_tag_detector()    
 
     try:

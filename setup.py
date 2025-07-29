@@ -39,6 +39,7 @@ setup(
             'lane_follow = gary_the_snail.bluerov2_lane_following:main',
             'image_save = gary_the_snail.bluerov2_image_save:main',
             'april_tag = gary_the_snail.bluerov2_april_tag:main',
+            'flashlight_control = gary_the_snail.bluerov2_flashlight_control:main',
         ],
     },
     options={
