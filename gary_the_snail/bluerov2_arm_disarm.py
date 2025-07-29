@@ -7,7 +7,7 @@ from time import time, sleep
 
 TIME_TO_MOVE = 300 # seconds
 
-class arm_disarm(Node):
+class ArmDisarm(Node):
     def __init__(self):
         super().__init__("arm_disarm")    # names the node when running
 
@@ -28,7 +28,7 @@ class arm_disarm(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = arm_disarm()
+    node = ArmDisarm()
     future = node.send_request(True)
     rclpy.spin_until_future_complete(node, future)
     response = future.result()

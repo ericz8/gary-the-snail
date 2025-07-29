@@ -12,12 +12,12 @@ from cv_bridge import CvBridge
 import numpy as np
 from time import time
 
-class lane_follow(Node):
+class LaneFollow(Node):
     def __init__(self):
         super().__init__("lane_following")
 
         self.pub_lateral = self.create_publisher(
-            Int16,
+            Float32,
             "/target_y",
             10
         )
@@ -50,8 +50,8 @@ class lane_follow(Node):
     def camera_callback(self, msg):
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         img = lane_detection.crop_half(img)
-        self.IMAGE_WIDTH = msg.width
-        self.IMAGE_HEIGHT = msg.height
+        self.IMAGE_WIDTH = img.shape[1]
+        self.IMAGE_HEIGHT = img.shape[0]
 
         self.lane_follow_publisher(img)
 
@@ -67,9 +67,10 @@ class lane_follow(Node):
             msg.data = -20
         elif recommended == "clock":
             msg.data = 20
+
         self.pub_relative_heading.publish(msg)
 
-        self.get_logger().info(recommended)
+        self.get_logger().info("move: " + recommended)
 
         error = self.IMAGE_WIDTH // 2 - intercept
 
@@ -79,17 +80,22 @@ class lane_follow(Node):
             angle_line = np.arctan(slope)
             relative_angle = np.pi / 2 - angle_line
 
-            msg.data = int(relative_angle)
+            msg.data = int(np.degrees(relative_angle))
             self.get_logger().info("centered lane")
-            self.pub_relative_heading(msg)
+            self.pub_relative_heading.publish(msg)
         else:
-            self.get_logger().info(str(error))
+            self.get_logger().info("errpr: " + str(error))
             
             dt = time() - self.last_time
             
             self.integral += max(-20.0, min(20.0, dt*error))
             
-            derivative = (error - self.last_error) / dt
+            if self.first_run:
+                derivative = 0.0
+                self.first_run = False
+            else:
+                derivative = (error - self.last_error) / dt
+
             output = error * self.Kp + self.integral * self.Ki + derivative * self.Kd
 
             self.last_error = error
@@ -97,9 +103,17 @@ class lane_follow(Node):
 
             self.publish_lateral(output)
 
+            self.get_logger().info("output: " + str(output))
+    
+    def publish_lateral(self, out):
+        msg = Float32()
+        msg.data = np.clip(out, -100.0, 100.0)
+        self.pub_lateral.publish(msg)
+
+
 def main(args=None):
     rclpy.init(args=args)
-    node = lane_follow()    
+    node = LaneFollow()    
 
     try:
         rclpy.spin(node)

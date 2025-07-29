@@ -2,7 +2,7 @@ import rclpy    # the ROS 2 client library for Python
 from rclpy.node import Node    # the ROS 2 Node class
 from std_msgs.msg import Int16
 
-class target_heading_publisher(Node):
+class TargetHeadingPublisher(Node):
     def __init__(self):
         super().__init__("tutorial_publisher")    # names the node when running
 
@@ -23,7 +23,7 @@ class target_heading_publisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = target_heading_publisher()
+    node = TargetHeadingPublisher()
 
     try:
         while True:

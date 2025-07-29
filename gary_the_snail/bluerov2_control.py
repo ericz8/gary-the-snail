@@ -3,7 +3,7 @@ from rclpy.node import Node    # the ROS 2 Node class
 from std_msgs.msg import Float32    # the Vector3 message type definition
 from mavros_msgs.msg import ManualControl
 
-class control(Node):
+class Control(Node):
     def __init__(self):
         super().__init__("control_node")    # names the node when running
 
@@ -79,7 +79,7 @@ class control(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = control()
+    node = Control()
 
     try:
         rclpy.spin(node)

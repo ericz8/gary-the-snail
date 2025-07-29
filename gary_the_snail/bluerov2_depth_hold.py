@@ -6,7 +6,7 @@ from std_msgs.msg import Int16, Float32
 import numpy as np
 from time import time
 
-class depth_hold(Node):
+class DepthHold(Node):
     def __init__(self):
         super().__init__("depth_hold")    # names the node when running
         
@@ -49,6 +49,8 @@ class depth_hold(Node):
 
         self.last_time = time()
 
+        self.first_run = True
+
         self.get_logger().info("initialized depth hold subscriber node")
 
     def get_depth(self, msg):
@@ -60,7 +62,12 @@ class depth_hold(Node):
         dt = time() - self.last_time
         self.integral += max(-20.0, min(20.0, dt*error))
         
-        derivative = (error - self.last_error) / dt
+        if self.first_run:
+            derivative = 0.0
+            self.first_run = False
+        else:
+            derivative = (error - self.last_error) / dt
+
         output = error * self.Kp + self.integral * self.Ki + derivative * self.Kd
 
         self.last_error = error
@@ -86,7 +93,7 @@ class depth_hold(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = depth_hold()    
+    node = DepthHold()    
 
     try:
         rclpy.spin(node)

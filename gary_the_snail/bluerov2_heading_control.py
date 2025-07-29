@@ -5,7 +5,7 @@ from mavros_msgs.msg import ManualControl
 from time import time
 import numpy as np
 
-class heading_control(Node):
+class HeadingControl(Node):
     def __init__(self):
         super().__init__("heading_control")
         
@@ -108,7 +108,7 @@ class heading_control(Node):
     
 def main(args=None):
     rclpy.init(args=args)
-    node = heading_control()    
+    node = HeadingControl()    
 
     try:
         rclpy.spin(node)

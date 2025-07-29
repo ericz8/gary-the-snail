@@ -2,7 +2,7 @@ import rclpy    # the ROS 2 client library for Python
 from rclpy.node import Node    # the ROS 2 Node class
 from std_msgs.msg import Float32
 
-class target_depth_publisher(Node):
+class TargetDepthPublisher(Node):
     def __init__(self):
         super().__init__("tutorial_publisher")    # names the node when running
 
@@ -23,7 +23,7 @@ class target_depth_publisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = target_depth_publisher()
+    node = TargetDepthPublisher()
 
     try:
         while True:

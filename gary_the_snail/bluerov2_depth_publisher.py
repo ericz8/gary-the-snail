@@ -7,7 +7,7 @@ ATMOSPHERIC_PRESSURE = 101325
 GRAVITATIONAL_ACC = 9.81
 WATER_DENSITY = 1000
 
-class depth_publisher(Node):
+class DepthPublisher(Node):
     def __init__(self):
         super().__init__("pressure_converter")
 
@@ -33,7 +33,7 @@ class depth_publisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = depth_publisher()    
+    node = DepthPublisher()    
 
     try:
         rclpy.spin(node)

@@ -6,7 +6,7 @@ import cv2
 
 from sensor_msgs.msg import Image
 
-class image_saver(Node):
+class ImageSaver(Node):
     def __init__(self):
         super().__init__("image_saver")
 
@@ -31,7 +31,7 @@ class image_saver(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = image_saver()    
+    node = ImageSaver()    
 
     try:
         rclpy.spin(node)

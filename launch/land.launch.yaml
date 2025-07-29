@@ -42,11 +42,11 @@ launch:
     name: "bluerov2_control"
     namespace: ""
 
-- node:
-    pkg: "gary_the_snail"
-    exec: "lane_follow"
-    name: "bluerov2_lane_following"
-    namespace: ""
+# - node:
+#     pkg: "gary_the_snail"
+#     exec: "lane_follow"
+#     name: "bluerov2_lane_following"
+#     namespace: ""
 
 - node:
     pkg: "gary_the_snail"

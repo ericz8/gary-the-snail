@@ -6,7 +6,7 @@ from time import time, sleep
 TURN_180_TIME = 0 # seconds
 TURN_360_TIME = 0 # seconds
 
-class movement(Node):
+class Movement(Node):
     def __init__(self):
         super().__init__("movement")    # names the node when running
         
@@ -95,7 +95,7 @@ class movement(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    node = movement()
+    node = Movement()
 
     node.play_moves()
 

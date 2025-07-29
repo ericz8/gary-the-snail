@@ -12,7 +12,7 @@ from time import sleep
 import yaml
 import numpy as np
 
-class april_tag_detector(Node):
+class AprilTag(Node):
     def __init__(self):
         super().__init__("april_tag_detector")
 
@@ -179,7 +179,7 @@ class april_tag_detector(Node):
 def main(args=None):
     rclpy.init(args=args)
        
-    node = april_tag_detector()    
+    node = AprilTag()    
 
     try:
         rclpy.spin(node)
