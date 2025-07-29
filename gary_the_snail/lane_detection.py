@@ -18,6 +18,9 @@ def detect_lines(img, threshold1=50, threshold2=150, aperture_size=3, minLineLen
         maxLineGap=maxLineGap
     )
 
+    if lines is None:
+        return []
+
     return lines
 
 def draw_lines(img, lines, color=(0, 255, 0)):

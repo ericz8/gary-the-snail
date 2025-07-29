@@ -25,6 +25,13 @@ class depth_hold(Node):
             10
         )
 
+        self.sub_relative = self.create_subscription(
+            Float32,
+            "/relative_depth",
+            self.get_relative_depth,
+            10
+        )
+
         self.sub_depth = self.create_subscription(
             Float32, 
             "/depth", 
@@ -63,6 +70,9 @@ class depth_hold(Node):
 
     def get_target_depth(self, msg):
         self.target_depth = msg.data
+    
+    def get_relative_depth(self, msg):
+        self.target_depth += msg.data
 
     def publish_depth_move(self, z):
         msg = Float32()

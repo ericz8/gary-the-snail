@@ -7,10 +7,12 @@ from gary_the_snail import lane_following
 from std_msgs.msg import Int16, Float32
 from sensor_msgs.msg import Image
 
+from cv_bridge import CvBridge
+
 import numpy as np
 from time import time
 
-class lane_following(Node):
+class lane_follow(Node):
     def __init__(self):
         super().__init__("lane_following")
 
@@ -39,6 +41,11 @@ class lane_following(Node):
 
         self.integral = 0.0
         self.last_error = 0.0
+
+        self.bridge = CvBridge()
+        
+        self.last_time = 0
+        self.first_run = True
         
     def camera_callback(self, msg):
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
@@ -76,9 +83,10 @@ class lane_following(Node):
             self.get_logger().info("centered lane")
             self.pub_relative_heading(msg)
         else:
-            self.get_logger().info(error)
+            self.get_logger().info(str(error))
             
             dt = time() - self.last_time
+            
             self.integral += max(-20.0, min(20.0, dt*error))
             
             derivative = (error - self.last_error) / dt
@@ -91,7 +99,7 @@ class lane_following(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = lane_following()    
+    node = lane_follow()    
 
     try:
         rclpy.spin(node)
