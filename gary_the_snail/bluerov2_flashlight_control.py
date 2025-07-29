@@ -12,13 +12,13 @@ class FlashlightControl(Node):
         
         self.pub_light = self.create_publisher(
             OverrideRCIn, 
-            "override_rc", 
+            "/override_rc", 
             10
         )
 
         self.sub_light = self.create_subscription(
             Bool,
-            "flash",
+            "/flash",
             self.flash_robot,
             10
         )
@@ -38,14 +38,6 @@ class FlashlightControl(Node):
         commands.channels = [OverrideRCIn.CHAN_NOCHANGE] * 10
         commands.channels[8] = 1000 + level * 10
         commands.channels[9] = 1000 + level * 10
-        self.pub_light.publish(commands)
-
-        sleep(2)
-
-        commands = OverrideRCIn()
-        commands.channels = [OverrideRCIn.CHAN_NOCHANGE] * 10
-        commands.channels[8] = 1000
-        commands.channels[9] = 1000
         self.pub_light.publish(commands)
 
 def main(args=None):

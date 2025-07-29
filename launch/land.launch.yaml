@@ -12,6 +12,12 @@ launch:
     name: "bluerov2_camera_interface"
     namespace: ""
 
+# - node:
+#     pkg: "gary_the_snail"
+#     exec: "arm_disarm_client"
+#     name: "bluerov2_arm_disarm"
+#     namespace: ""
+
 - node:
     pkg: "gary_the_snail"
     exec: "depth_hold"
@@ -36,11 +42,17 @@ launch:
     name: "bluerov2_control"
     namespace: ""
 
-# - node:
-#     pkg: "gary_the_snail"
-#     exec: "lane_follow"
-#     name: "bluerov2_lane_following"
-#     namespace: ""
+- node:
+    pkg: "gary_the_snail"
+    exec: "lane_follow"
+    name: "bluerov2_lane_following"
+    namespace: ""
+
+- node:
+    pkg: "gary_the_snail"
+    exec: "flashlight_control"
+    name: "bluerov2_flashlight_control"
+    namespace: ""
 
 # - node:
 #     pkg: "gary_the_snail"

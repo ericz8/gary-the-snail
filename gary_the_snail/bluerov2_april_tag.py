@@ -7,6 +7,7 @@ from dt_apriltags import Detector
 import cv2
 from cv_bridge import CvBridge
 from std_msgs.msg import Bool, Int16, Float32
+from time import sleep
 
 import yaml
 import numpy as np
@@ -25,7 +26,8 @@ class april_tag_detector(Node):
             debug=0
         )
 
-        self.valid_back = [18]
+        self.valid_back = [29]
+        self.valid_front = []
 
         self.fx = 273.25
         self.fy = 261.76
@@ -43,19 +45,19 @@ class april_tag_detector(Node):
 
         self.pub_lights = self.create_publisher(
             Bool,
-            "flash",
+            "/flash",
             10
         )
 
         self.pub_heading = self.create_publisher(
             Int16,
-            "relative_heading",
+            "/relative_heading",
             10
         )
         
         self.pub_speed = self.create_publisher(
             Float32,
-            "target_x",
+            "/target_x",
             10
         )
 
@@ -63,7 +65,7 @@ class april_tag_detector(Node):
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
 
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # change img to undistorted
-
+        
         tags = self.at_detector.detect(
             gray, 
             estimate_tag_pose=True, 
@@ -71,14 +73,13 @@ class april_tag_detector(Node):
             tag_size=0.1
         )
 
-        # if two tags are both robot tags then go toward the middle
-        # do we care if theyre on the back 
 
         robot_tags = []
         for tag in tags:
             print(f"Detected tag ID: {tag.tag_id}")
             print("Translation (t):", tag.pose_t.flatten())
             print("Rotation matrix (R):\n", tag.pose_R) 
+            # if tag in back
             if tag.tag_id in self.valid_back:
                 robot_tags.append(tag)
 
@@ -87,94 +88,97 @@ class april_tag_detector(Node):
                     msg = Bool()
                     msg.data = True
                     self.pub_lights.publish(msg)
+
+                # if tag in front
+                if tag.tag_id in self.valid_front:
+                    if np.linalg.norm(tag.pose_t.flatten()) <= 1:
+                        msg = Bool()
+                        msg.data = True
+                        self.pub_lights.publish(msg)
+                    else:
+                        msg = Float32()
+                        msg.data = 1.0
+                        self.pub_depth.publish(msg) #go down
+
+                        sleep(1)
+                        
+                        msg = Float32()
+                        msg.data = 20.0 # TODO? 
+                        self.pub_speed.publish(msg) #move forward
+
+                        sleep(1)
+
+                        msg = Float32()
+                        msg.data = 0.0
+                        self.pub_speed.publish(msg) # stop moving
+
+                        sleep(0.5)
+
+                        msg = Float32()
+                        msg.data = 180.0
+                        self.pub_heading.publish(msg) #turns
+
+                        sleep(1)
+                        
+                        msg = Float32()
+                        msg.data = -1.0
+                        self.pub_depth.publish(msg) #go up 
+
+                        return
+                    
+
+        def get_angle_yaw(t):
+            t = t.flatten()
+            return np.degrees(np.arctan2(t[0], t[2]))
+
+        def get_angle_pitch(t):
+            t = t.flatten()
+            return np.degrees(t[1], t[2])
         
-        # average_yaw = 0
-        # if len(robot_tags) == 2:
-        #     average_yaw = (robot_tags[0].pose_R[2] + robot_tags[1].pose_R[2]) / 2
-
-        # if len(robot_tags) > 0:
-        #     average_yaw = robot_tags[0].pose_R[2]
-        #     msg = Int16() 
-        #     msg.data = average_yaw
-
-        #     self.pub_heading.publish(msg)
-
-        #     vert_dist = np.sin(np.radians(robot_tags[0].pose_R[1]))
-        #     msg = Float32()
-        #     msg.data = -vert_dist
-
-        #     self.pub_depth.publish(msg)
-
-        #     msg = Int16()
-        #     msg.data = 30
-        #     if np.linalg.norm(robot_tags[0].pose_t.flatten()) < 0.2:
-        #         msg.data = 0
-        #     self.pub_speed.publish(msg)
-        # else:
-        #     print("no robot fetected")
-
-        #     msg = Float32()
-        #     msg.data = 0.0
-        #     self.pub_speed.publish(msg)
-        #     # yse fetected
-        #     # yse nlo
-        #     # nlo :P)  :)
-        #     # ඞ
-        
-        def rotation_matrix_to_euler(R):
-            """
-            Extract yaw, pitch, roll from 3x3 rotation matrix using ZYX convention
-            Returns angles in degrees
-            """
-            # Check for gimbal lock
-            if abs(R[2, 0]) < 0.99999:  # Normal case
-                pitch = np.arcsin(-R[2, 0])
-                yaw = np.arctan2(R[1, 0], R[0, 0])
-                roll = np.arctan2(R[2, 1], R[2, 2])
-            else:  # Gimbal lock
-                roll = 0
-                if R[2, 0] < 0:
-                    pitch = np.pi / 2
-                    yaw = np.arctan2(R[0, 1], R[1, 1])
-                else:
-                    pitch = -np.pi / 2
-                    yaw = np.arctan2(-R[0, 1], R[1, 1])
-            
-            # Convert to degrees
-            print(f"Yaw: {np.degrees(yaw)}, Pitch: {np.degrees(pitch)}, Roll: {np.degrees(roll)}")
-            return np.degrees(yaw), np.degrees(pitch), np.degrees(roll)
-
-        # Your corrected code:
-        average_yaw = 0
+        average_angle = 0
         if len(robot_tags) == 2:
-            yaw1, _, _ = rotation_matrix_to_euler(robot_tags[0].pose_R)
-            yaw2, _, _ = rotation_matrix_to_euler(robot_tags[1].pose_R)
-            average_yaw = (yaw1 + yaw2) / 2
+            average_angle = (get_angle_yaw(robot_tags[0].pose_t) + get_angle_yaw(robot_tags[1].pose_t)) / 2
 
         if len(robot_tags) > 0:
-            yaw, pitch, roll = rotation_matrix_to_euler(robot_tags[0].pose_R)
-            average_yaw = yaw
-            
-            msg = Int16() 
-            msg.data = int(average_yaw)  # Convert to int for Int16
+            average_angle = get_angle_yaw(robot_tags[0].pose_t)
+            msg = Int16()
+            msg.data = int(average_angle)
+
+            self.get_logger().info("delta heading: " + str(average_angle))
+
             self.pub_heading.publish(msg)
- 
+
+            vert_dist = np.sin(np.radians(get_angle_pitch(robot_tags[0].pose_t)))
+            msg = Float32()
+            msg.data = -vert_dist
+
+            self.get_logger().info("delta depth: " + str(-vert_dist))
+
+            self.pub_depth.publish(msg)
 
             msg = Float32()
             msg.data = 30.0
             if np.linalg.norm(robot_tags[0].pose_t.flatten()) < 0.2:
                 msg.data = 0.0
             self.pub_speed.publish(msg)
-
         else:
-            print("no robot detected")
+            # print("no robot fetected")
+
             msg = Float32()
             msg.data = 0.0
             self.pub_speed.publish(msg)
 
+            msg = Bool()
+            msg.data = False
+            self.pub_lights.publish(msg)
+            # yse fetected
+            # yse nlo
+            # nlo :P)  :)
+            # ඞ sus
+        
 def main(args=None):
     rclpy.init(args=args)
-    
+       
     node = april_tag_detector()    
 
     try:
