@@ -26,8 +26,8 @@ class AprilTag(Node):
             debug=0
         )
 
-        self.valid_back = [13]
-        self.valid_front = []
+        self.valid_back = [6, 7, 10, 11, 2, 3]
+        self.valid_front = [4, 5, 8, 9, 0, 1]
 
         self.fx = 273.25
         self.fy = 261.76
@@ -148,6 +148,29 @@ class AprilTag(Node):
                     self.pub_depth.publish(msg) #go up 
 
                     return
+                
+        if len(tags) == 0:
+            msg = Float32()
+            msg.data = 1.0
+            self.pub_depth.publish(msg) #go down
+
+            sleep(1)
+                    
+            msg = Float32()
+            msg.data = 20.0
+            self.pub_speed.publish(msg) #move forward
+
+            sleep(1)
+
+            msg = Float32()
+            msg.data = 0.0
+            self.pub_speed.publish(msg) # stop moving
+
+            sleep(0.5)
+                    
+            msg = Float32()
+            msg.data = -1.0
+            self.pub_depth.publish(msg) #go up 
                     
 
         def get_angle_yaw(t):
