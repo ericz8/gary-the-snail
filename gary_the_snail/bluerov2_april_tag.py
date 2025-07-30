@@ -26,7 +26,7 @@ class AprilTag(Node):
             debug=0
         )
 
-        self.valid_back = [29]
+        self.valid_back = [13]
         self.valid_front = []
 
         self.fx = 273.25
@@ -54,6 +54,12 @@ class AprilTag(Node):
             "/relative_heading",
             10
         )
+
+        self.pub_depth = self.create_publisher(
+            Float32,
+            "/relative_depth",
+            10
+        )
         
         self.pub_speed = self.create_publisher(
             Float32,
@@ -77,8 +83,7 @@ class AprilTag(Node):
         robot_tags = []
         for tag in tags:
             print(f"Detected tag ID: {tag.tag_id}")
-            print("Translation (t):", tag.pose_t.flatten())
-            print("Rotation matrix (R):\n", tag.pose_R) 
+
             # if tag in back
             if tag.tag_id in self.valid_back:
                 robot_tags.append(tag)
@@ -89,51 +94,51 @@ class AprilTag(Node):
                     msg.data = True
                     self.pub_lights.publish(msg)
 
-                # if tag in front
-                if tag.tag_id in self.valid_front:
-                    if np.linalg.norm(tag.pose_t.flatten()) <= 1:
-                        msg = Bool()
-                        msg.data = True
-                        self.pub_lights.publish(msg)
-                    else:
-                        msg = Float32()
-                        msg.data = 1.0
-                        self.pub_depth.publish(msg) #go down
+            # if tag in front
+            if tag.tag_id in self.valid_front:
+                if np.linalg.norm(tag.pose_t.flatten()) <= 1:
+                    msg = Bool()
+                    msg.data = True
+                    self.pub_lights.publish(msg)
+                else:
+                    msg = Float32()
+                    msg.data = 1.0
+                    self.pub_depth.publish(msg) #go down
 
-                        sleep(1)
-                        
-                        msg = Float32()
-                        msg.data = 20.0 # TODO? 
-                        self.pub_speed.publish(msg) #move forward
+                    sleep(1)
+                    
+                    msg = Float32()
+                    msg.data = 20.0 # TODO? 
+                    self.pub_speed.publish(msg) #move forward
 
-                        sleep(1)
+                    sleep(1)
 
-                        msg = Float32()
-                        msg.data = 0.0
-                        self.pub_speed.publish(msg) # stop moving
+                    msg = Float32()
+                    msg.data = 0.0
+                    self.pub_speed.publish(msg) # stop moving
 
-                        sleep(0.5)
+                    sleep(0.5)
 
-                        msg = Float32()
-                        msg.data = 180.0
-                        self.pub_heading.publish(msg) #turns
+                    msg = Float32()
+                    msg.data = 180.0
+                    self.pub_heading.publish(msg) #turns
 
-                        sleep(1)
-                        
-                        msg = Float32()
-                        msg.data = -1.0
-                        self.pub_depth.publish(msg) #go up 
+                    sleep(1)
+                    
+                    msg = Float32()
+                    msg.data = -1.0
+                    self.pub_depth.publish(msg) #go up 
 
-                        return
+                    return
                     
 
         def get_angle_yaw(t):
             t = t.flatten()
             return np.degrees(np.arctan2(t[0], t[2]))
 
-        def get_angle_pitch(t):
+        def get_vert_dist(t):
             t = t.flatten()
-            return np.degrees(t[1], t[2])
+            return np.arctan2(t[1], t[2]) * np.sqrt(t[1] ** 2 + t[2] ** 2)
         
         average_angle = 0
         if len(robot_tags) == 2:
@@ -148,16 +153,16 @@ class AprilTag(Node):
 
             self.pub_heading.publish(msg)
 
-            vert_dist = np.sin(np.radians(get_angle_pitch(robot_tags[0].pose_t)))
+            # vert_dist = np.sin(get_vert_dist(robot_tags[0].pose_t))
+            # msg = Float32()
+            # msg.data = -vert_dist
+
+            # self.get_logger().info("delta depth: " + str(-vert_dist))
+
+            # self.pub_depth.publish(msg)
+
             msg = Float32()
-            msg.data = -vert_dist
-
-            self.get_logger().info("delta depth: " + str(-vert_dist))
-
-            self.pub_depth.publish(msg)
-
-            msg = Float32()
-            msg.data = 30.0
+            msg.data = 20.0
             if np.linalg.norm(robot_tags[0].pose_t.flatten()) < 0.2:
                 msg.data = 0.0
             self.pub_speed.publish(msg)
@@ -168,9 +173,10 @@ class AprilTag(Node):
             msg.data = 0.0
             self.pub_speed.publish(msg)
 
-            msg = Bool()
-            msg.data = False
-            self.pub_lights.publish(msg)
+            # msg = Bool()
+            # msg.data = False
+            # self.pub_lights.publish(msg)
+            
             # yse fetected
             # yse nlo
             # nlo :P)  :)
