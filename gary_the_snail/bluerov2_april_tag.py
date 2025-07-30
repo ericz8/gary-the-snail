@@ -34,6 +34,8 @@ class AprilTag(Node):
         self.cx = 307.89
         self.cy = 153.84
 
+        self.heading = 0
+
         self.sub_camera = self.create_subscription(
             Image,
             "/camera",
@@ -51,6 +53,12 @@ class AprilTag(Node):
 
         self.pub_heading = self.create_publisher(
             Int16,
+            "/target_heading",
+            10
+        )
+
+        self.pub__rel_heading = self.create_publisher(
+            Int16,
             "/relative_heading",
             10
         )
@@ -66,6 +74,16 @@ class AprilTag(Node):
             "/target_x",
             10
         )
+
+        self.sub_heading = self.create_subscription(
+            Int16,
+            "/heading",
+            self.heading_callback,
+            10
+        )
+
+    def heading_callback(self, msg):
+        self.heading = msg.data
 
     def camera_callback(self, msg):
         img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
@@ -121,7 +139,7 @@ class AprilTag(Node):
 
                     msg = Float32()
                     msg.data = 180.0
-                    self.pub_heading.publish(msg) #turns
+                    self.pub_rel_heading.publish(msg) #turns
 
                     sleep(1)
                     
@@ -147,7 +165,7 @@ class AprilTag(Node):
         if len(robot_tags) > 0:
             average_angle = get_angle_yaw(robot_tags[0].pose_t)
             msg = Int16()
-            msg.data = int(average_angle)
+            msg.data = int(average_angle) + self.heading
 
             self.get_logger().info("delta heading: " + str(average_angle))
 
