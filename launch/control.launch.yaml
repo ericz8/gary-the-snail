@@ -6,11 +6,11 @@ launch:
     name: "bluerov2_hardware_interface"
     namespace: ""
 
-# - node:
-#     pkg: "rosmav"
-#     exec: "bluerov2_camera_interface"
-#     name: "bluerov2_camera_interface"
-#     namespace: ""
+- node:
+    pkg: "rosmav"
+    exec: "bluerov2_camera_interface"
+    name: "bluerov2_camera_interface"
+    namespace: ""
 
 - node:
     pkg: "gary_the_snail"

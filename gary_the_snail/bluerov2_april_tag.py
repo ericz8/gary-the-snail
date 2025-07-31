@@ -26,7 +26,7 @@ class AprilTag(Node):
             debug=0
         )
 
-        self.valid_back = [6, 7, 10, 11, 2, 3]
+        self.valid_back = [6, 7, 10, 11, 2, 3, 29]
         self.valid_front = [4, 5, 8, 9, 0, 1]
 
         self.fx = 273.25
@@ -88,19 +88,19 @@ class AprilTag(Node):
         # self.pub_depth.publish(msg) #go down to 2 meters?
         # sleep(1) 
                 
-        msg = Float32()
-        msg.data = 20.0
-        self.pub_speed.publish(msg) #move forward
-        sleep(1)
+        # msg = Float32()
+        # msg.data = 20.0
+        # self.pub_speed.publish(msg) #move forward
+        # sleep(1)
 
-        msg = Float32()
-        msg.data = 0.0
-        self.pub_speed.publish(msg) # stop moving
-        sleep(0.5)
+        # msg = Float32()
+        # msg.data = 0.0
+        # self.pub_speed.publish(msg) # stop moving
+        # sleep(0.5)
                     
-        msg = Float32()
-        msg.data = -1.0
-        self.pub_depth.publish(msg) #go up 
+        # msg = Float32()
+        # msg.data = -1.0
+        # self.pub_depth.publish(msg) #go up 
 
 
     def heading_callback(self, msg):
@@ -115,13 +115,14 @@ class AprilTag(Node):
             gray, 
             estimate_tag_pose=True, 
             camera_params=(self.fx, self.fy, self.cx, self.cy), 
-            tag_size=0.05
+            tag_size=0.1
         )
 
 
         robot_tags = []
         for tag in tags:
             print(f"Detected tag ID: {tag.tag_id}")
+            print(f"translation: {tag.pose_t.flatten()}")
 
             # if tag in back
             if tag.tag_id in self.valid_back:
@@ -147,7 +148,7 @@ class AprilTag(Node):
                     sleep(1)
                     
                     msg = Float32()
-                    msg.data = 20.0 # TODO? 
+                    msg.data = 40.0 # TODO? 
                     self.pub_speed.publish(msg) #move forward
 
                     sleep(1)
@@ -200,7 +201,7 @@ class AprilTag(Node):
             # self.pub_depth.publish(msg)
 
             msg = Float32()
-            msg.data = 20.0
+            msg.data = 40.0
             if np.linalg.norm(robot_tags[0].pose_t.flatten()) < 0.2:
                 msg.data = 0.0
             self.pub_speed.publish(msg)

@@ -42,7 +42,7 @@ class Control(Node):
         )
 
         self.timer = self.create_timer(
-            0.1,    # timer period (sec)
+            .05,    # timer period (sec)
             self.publish_manual_control    # callback function
         )
 
