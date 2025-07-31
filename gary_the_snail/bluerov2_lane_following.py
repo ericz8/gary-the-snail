@@ -56,7 +56,7 @@ class LaneFollow(Node):
         self.lane_follow_publisher(img)
 
     def lane_follow_publisher(self, img):
-        lines = lane_detection.detect_lines(img, threshold1=20, threshold2=60, aperture_size=3, minLineLength=25, maxLineGap=25)
+        lines = lane_detection.detect_lines(img, threshold1=200, threshold2=300, aperture_size=3, minLineLength=250, maxLineGap=25)
         lanes = lane_detection.detect_lanes(lines)
 
         intercept, slope = lane_following.get_lane_center(img, lanes)

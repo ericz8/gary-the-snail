@@ -12,12 +12,6 @@ launch:
     name: "bluerov2_camera_interface"
     namespace: ""
 
-# - node:
-#     pkg: "gary_the_snail"
-#     exec: "arm_disarm_client"
-#     name: "bluerov2_arm_disarm"
-#     namespace: ""
-
 - node:
     pkg: "gary_the_snail"
     exec: "depth_hold"

@@ -40,14 +40,6 @@ class FlashlightControl(Node):
         commands.channels[9] = 1000 + level * 10
         self.pub_light.publish(commands)
 
-        sleep(1)
-
-        commands = OverrideRCIn()
-        commands.channels = [OverrideRCIn.CHAN_NOCHANGE] * 10
-        commands.channels[8] = 1000
-        commands.channels[9] = 1000
-        self.pub_light.publish(commands)
-
 def main(args=None):
     rclpy.init(args=args)
     node = FlashlightControl()    

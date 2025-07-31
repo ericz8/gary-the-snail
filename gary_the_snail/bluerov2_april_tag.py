@@ -57,7 +57,7 @@ class AprilTag(Node):
             10
         )
 
-        self.pub__rel_heading = self.create_publisher(
+        self.pub_rel_heading = self.create_publisher(
             Int16,
             "/relative_heading",
             10
@@ -81,6 +81,29 @@ class AprilTag(Node):
             self.heading_callback,
             10
         )
+
+        #if we start in the middle facing away from each
+        msg = Float32()
+        msg.data = 1.0
+        self.pub_depth.publish(msg) #go down
+
+        sleep(1)
+                    
+        msg = Float32()
+        msg.data = 20.0
+        self.pub_speed.publish(msg) #move forward
+
+        sleep(1)
+
+        msg = Float32()
+        msg.data = 0.0
+        self.pub_speed.publish(msg) # stop moving
+
+        sleep(0.5)
+                    
+        msg = Float32()
+        msg.data = -1.0
+        self.pub_depth.publish(msg) #go up 
 
     def heading_callback(self, msg):
         self.heading = msg.data
@@ -137,8 +160,8 @@ class AprilTag(Node):
 
                     sleep(0.5)
 
-                    msg = Float32()
-                    msg.data = 180.0
+                    msg = Int16()
+                    msg.data = 180
                     self.pub_rel_heading.publish(msg) #turns
 
                     sleep(1)
@@ -147,31 +170,7 @@ class AprilTag(Node):
                     msg.data = -1.0
                     self.pub_depth.publish(msg) #go up 
 
-                    return
-                
-        if len(tags) == 0:
-            msg = Float32()
-            msg.data = 1.0
-            self.pub_depth.publish(msg) #go down
-
-            sleep(1)
-                    
-            msg = Float32()
-            msg.data = 20.0
-            self.pub_speed.publish(msg) #move forward
-
-            sleep(1)
-
-            msg = Float32()
-            msg.data = 0.0
-            self.pub_speed.publish(msg) # stop moving
-
-            sleep(0.5)
-                    
-            msg = Float32()
-            msg.data = -1.0
-            self.pub_depth.publish(msg) #go up 
-                    
+                    return                    
 
         def get_angle_yaw(t):
             t = t.flatten()
@@ -214,9 +213,9 @@ class AprilTag(Node):
             msg.data = 0.0
             self.pub_speed.publish(msg)
 
-            # msg = Bool()
-            # msg.data = False
-            # self.pub_lights.publish(msg)
+            msg = Bool()
+            msg.data = False
+            self.pub_lights.publish(msg)
             
             # yse fetected
             # yse nlo

@@ -16,7 +16,7 @@ class DepthHold(Node):
 
         self.integral = 0.0
         self.last_error = 0.0
-        self.target_depth = 1.0
+        self.target_depth = 1.5
 
         self.sub_target = self.create_subscription(
             Float32,
