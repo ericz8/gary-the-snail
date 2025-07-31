@@ -82,28 +82,26 @@ class AprilTag(Node):
             10
         )
 
-        #if we start in the middle facing away from each
-        msg = Float32()
-        msg.data = 1.0
-        self.pub_depth.publish(msg) #go down
-
-        sleep(1)
-                    
+        #if we start in the middle facing away from each other
+        # msg = Float32()
+        # msg.data = 1.0
+        # self.pub_depth.publish(msg) #go down to 2 meters?
+        # sleep(1) 
+                
         msg = Float32()
         msg.data = 20.0
         self.pub_speed.publish(msg) #move forward
-
         sleep(1)
 
         msg = Float32()
         msg.data = 0.0
         self.pub_speed.publish(msg) # stop moving
-
         sleep(0.5)
                     
         msg = Float32()
         msg.data = -1.0
         self.pub_depth.publish(msg) #go up 
+
 
     def heading_callback(self, msg):
         self.heading = msg.data
@@ -117,7 +115,7 @@ class AprilTag(Node):
             gray, 
             estimate_tag_pose=True, 
             camera_params=(self.fx, self.fy, self.cx, self.cy), 
-            tag_size=0.1
+            tag_size=0.05
         )
 
 
@@ -170,7 +168,7 @@ class AprilTag(Node):
                     msg.data = -1.0
                     self.pub_depth.publish(msg) #go up 
 
-                    return                    
+                    return
 
         def get_angle_yaw(t):
             t = t.flatten()
@@ -216,6 +214,12 @@ class AprilTag(Node):
             msg = Bool()
             msg.data = False
             self.pub_lights.publish(msg)
+
+            """skibidi toilet
+            im the alpha im the leader im the one to trust
+            stuff goes here
+            """
+            
             
             # yse fetected
             # yse nlo
