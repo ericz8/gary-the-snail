@@ -13,7 +13,7 @@ class ArmDisarm(Node):
 
         self.cli = self.create_client(
             SetBool,
-            "/arming"
+            "arming"
         )
 
         while not self.cli.wait_for_service(timeout_sec=1.0):

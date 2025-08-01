@@ -13,14 +13,14 @@ class DepthPublisher(Node):
 
         self.sub = self.create_subscription(
             FluidPressure,
-            "/pressure",
+            "pressure",
             self.depth_callback,
             10
         )
         
         self.pub = self.create_publisher(
             Float32,
-            "/depth",
+            "depth",
             10
         )
 

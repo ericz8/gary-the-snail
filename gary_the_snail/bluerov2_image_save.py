@@ -14,7 +14,7 @@ class ImageSaver(Node):
 
         self.create_subscription(
             Image,
-            "/camera",
+            "camera",
             self.image_callback,
             10
         )

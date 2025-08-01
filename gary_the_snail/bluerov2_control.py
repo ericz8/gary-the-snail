@@ -9,34 +9,34 @@ class Control(Node):
 
         self.pub = self.create_publisher(
             ManualControl,        # the message type
-            "/manual_control",    # the topic name
+            "manual_control",    # the topic name
             10              # QOS (will be covered later)
         )
 
         self.sub_depth = self.create_subscription(
             Float32,        # the message type
-            "/depth_control",    # the topic name
+            "depth_control",    # the topic name
             self.depth_control_callback,
             10              # QOS (will be covered later)
         )
         
         self.sub_heading = self.create_subscription(
             Float32,        # the message type
-            "/heading_control",    # the topic name
+            "heading_control",    # the topic name
             self.heading_control_callback,
             10              # QOS (will be covered later)
         )
 
         self.sub_x = self.create_subscription(
             Float32,
-            "/target_x",
+            "target_x",
             self.x_control_callback,
             10
         )
 
         self.sub_y = self.create_subscription(
             Float32,
-            "/target_y",
+            "target_y",
             self.y_control_callback,
             10
         )
@@ -65,6 +65,7 @@ class Control(Node):
         self.x = msg.data
 
     def y_control_callback(self, msg):
+        self.get_logger().info(msg.data)
         self.y = msg.data
 
     def publish_manual_control(self):

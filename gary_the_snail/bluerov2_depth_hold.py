@@ -20,28 +20,28 @@ class DepthHold(Node):
 
         self.sub_target = self.create_subscription(
             Float32,
-            "/target_depth",
+            "target_depth",
             self.get_target_depth,
             10
         )
 
         self.sub_relative = self.create_subscription(
             Float32,
-            "/relative_depth",
+            "relative_depth",
             self.get_relative_depth,
             10
         )
 
         self.sub_depth = self.create_subscription(
             Float32, 
-            "/depth", 
+            "depth", 
             self.get_depth,
             10
         )
 
         self.pub = self.create_publisher(
             Float32,        # the message type
-            "/depth_control",    # the topic name
+            "depth_control",    # the topic name
             10              # QOS (will be covered later)
         )
 

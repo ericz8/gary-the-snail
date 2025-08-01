@@ -8,7 +8,7 @@ class TargetHeadingPublisher(Node):
 
         self.pub = self.create_publisher(
             Int16,        # the message type
-            "/target_heading",    # the topic name
+            "target_heading",    # the topic name
             10              # QOS (will be covered later)
         )
 

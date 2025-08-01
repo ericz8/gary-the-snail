@@ -12,13 +12,13 @@ class FlashlightControl(Node):
         
         self.pub_light = self.create_publisher(
             OverrideRCIn, 
-            "/override_rc", 
+            "override_rc", 
             10
         )
 
         self.sub_light = self.create_subscription(
             Bool,
-            "/flash",
+            "flash",
             self.flash_robot,
             10
         )

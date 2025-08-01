@@ -16,52 +16,52 @@ launch:
     pkg: "gary_the_snail"
     exec: "depth_hold"
     name: "bluerov2_depth_hold"
-    namespace: ""
+    namespace: "rov1"
 
 - node:
     pkg: "gary_the_snail"
     exec: "depth_publisher"
     name: "bluerov2_depth_publisher"
-    namespace: ""
+    namespace: "rov1"
 
 - node:
     pkg: "gary_the_snail"
     exec: "heading_control"
     name: "bluerov2_heading_control"
-    namespace: ""
+    namespace: "rov1"
 
 - node:
     pkg: "gary_the_snail"
     exec: "control"
     name: "bluerov2_control"
-    namespace: ""
+    namespace: "rov1"
 
 # - node:
 #     pkg: "gary_the_snail"
 #     exec: "lane_follow"
 #     name: "bluerov2_lane_following"
-#     namespace: ""
+#     namespace: "rov1"
 
 - node:
     pkg: "gary_the_snail"
     exec: "flashlight_control"
     name: "bluerov2_flashlight_control"
-    namespace: ""
+    namespace: "rov1"
 
 # - node:
 #     pkg: "gary_the_snail"
 #     exec: "april_tag"
 #     name: "bluerov2_april_tag"
-#     namespace: ""
+#     namespace: "rov1"
 
 # - node:
 #     pkg: "gary_the_snail"
 #     exec: "target_depth"
 #     name: "bluerov2_publish_target_depth"
-#       namespace: ""
+#       namespace: "rov1"
 
 # - node:
 #     pkg: "gary_the_snail"
 #     exec: "target_heading"
 #     name: "bluerov2_publish_target_heading"
-#     namespace: ""
+#     namespace: "rov1"

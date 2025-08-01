@@ -21,34 +21,34 @@ class HeadingControl(Node):
 
         self.sub = self.create_subscription(
             Int16,
-            "/heading",
+            "heading",
             self.heading_callback,
             10
         )
 
         self.pub = self.create_publisher(
             ManualControl,
-            "/manual_control",
+            "manual_control",
             10
         )
 
         self.sub_target = self.create_subscription(
             Int16,
-            "/target_heading",
+            "target_heading",
             self.get_target_heading,
             10
         )
 
         self.sub_relative = self.create_subscription(
             Int16,
-            "/relative_heading",
+            "relative_heading",
             self.get_relative_target,
             10
         )
 
         self.pub = self.create_publisher(
             Float32,
-            "/heading_control",
+            "heading_control",
             10
         )
         

@@ -26,7 +26,7 @@ class AprilTag(Node):
             debug=0
         )
 
-        self.valid_back = [6, 7, 10, 11, 2, 3, 29]
+        self.valid_back = [6, 7, 10, 11, 2, 3]
         self.valid_front = [4, 5, 8, 9, 0, 1]
 
         self.fx = 273.25
@@ -47,37 +47,37 @@ class AprilTag(Node):
 
         self.pub_lights = self.create_publisher(
             Bool,
-            "/flash",
+            "flash",
             10
         )
 
         self.pub_heading = self.create_publisher(
             Int16,
-            "/target_heading",
+            "target_heading",
             10
         )
 
         self.pub_rel_heading = self.create_publisher(
             Int16,
-            "/relative_heading",
+            "relative_heading",
             10
         )
 
         self.pub_depth = self.create_publisher(
             Float32,
-            "/relative_depth",
+            "relative_depth",
             10
         )
         
         self.pub_speed = self.create_publisher(
             Float32,
-            "/target_x",
+            "target_x",
             10
         )
 
         self.sub_heading = self.create_subscription(
             Int16,
-            "/heading",
+            "heading",
             self.heading_callback,
             10
         )
@@ -100,8 +100,21 @@ class AprilTag(Node):
                     
         # msg = Float32()
         # msg.data = -1.0
-        # self.pub_depth.publish(msg) #go up 
+        # self.pub_depth.publish(msg) #go up owo
 
+
+
+        #if other team has lane following (they start at end of pool) and we start in middle:
+        #(comment out whichever doesn't apply depending on situation during competition)
+
+        # msg = Int16()
+        # msg.data = 180
+        # self.pub_rel_heading.publish(msg) #turns
+
+        # msg = Float32()
+        # msg.data = -20.0
+        # self.pub_speed.publish(msg) #move backwards (until wall)
+        # sleep(1)
 
     def heading_callback(self, msg):
         self.heading = msg.data
@@ -115,14 +128,15 @@ class AprilTag(Node):
             gray, 
             estimate_tag_pose=True, 
             camera_params=(self.fx, self.fy, self.cx, self.cy), 
-            tag_size=0.1
+            tag_size=0.05
         )
-
-
+        
         robot_tags = []
         for tag in tags:
             print(f"Detected tag ID: {tag.tag_id}")
             print(f"translation: {tag.pose_t.flatten()}")
+
+            print(f"dist: {np.linalg.norm(tag.pose_t.flatten())}")
 
             # if tag in back
             if tag.tag_id in self.valid_back:

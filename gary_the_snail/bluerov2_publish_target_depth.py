@@ -8,7 +8,7 @@ class TargetDepthPublisher(Node):
 
         self.pub = self.create_publisher(
             Float32,        # the message type
-            "/target_depth",    # the topic name
+            "target_depth",    # the topic name
             10              # QOS (will be covered later)
         )
 

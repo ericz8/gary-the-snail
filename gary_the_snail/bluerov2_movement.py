@@ -15,7 +15,7 @@ class Movement(Node):
         # self.LIST_MOVES = [("counter", 2), ("clock",2)]
         self.pub = self.create_publisher(
             ManualControl,        # the message type
-            "/manual_control",    # the topic name
+            "manual_control",    # the topic name
             10              # QOS (will be covered later)
         )
 

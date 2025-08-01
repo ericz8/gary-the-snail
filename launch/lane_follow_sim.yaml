@@ -1,0 +1,7 @@
+launch:
+
+- node:
+    pkg: "gary_the_snail"
+    exec: "lane_follow"
+    name: "bluerov2_lane_following"
+    namespace: "rov1"

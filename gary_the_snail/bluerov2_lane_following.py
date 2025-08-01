@@ -18,19 +18,19 @@ class LaneFollow(Node):
 
         self.pub_lateral = self.create_publisher(
             Float32,
-            "/target_y",
+            "target_y",
             10
         )
 
         self.pub_relative_heading = self.create_publisher(
             Int16,
-            "/relative_heading",
+            "relative_heading",
             10
         )
 
         self.sub_camera = self.create_subscription(
             Image,
-            "/camera", # bluerov2/camera ?
+            "camera", # bluerov2/camera ?
             self.camera_callback,
             10
         )
@@ -58,6 +58,14 @@ class LaneFollow(Node):
     def lane_follow_publisher(self, img):
         lines = lane_detection.detect_lines(img, threshold1=200, threshold2=300, aperture_size=3, minLineLength=250, maxLineGap=25)
         lanes = lane_detection.detect_lanes(lines)
+
+        if lanes == []:
+            self.get_logger().warn("no lanes")
+
+            msg = Int16()
+            msg.data = 67
+            self.pub_relative_heading.publish(msg)
+            return
 
         intercept, slope = lane_following.get_lane_center(img, lanes)
         recommended = lane_following.recommend_direction(img, intercept, slope)
