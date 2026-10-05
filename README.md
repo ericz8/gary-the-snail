@@ -21,8 +21,8 @@ Every node is small and single-purpose; they communicate entirely over ROS 2 top
               │ depth        │    │     │  Perception        │
               │ publisher    │    │     │  • april_tag       │
               └──────┬───────┘    │     │  • lane_following  │
-                /depth│           │     └─────┬──────────────┘
-                      ▼           ▼           │ setpoints
+               /depth│            │     └─────┬──────────────┘
+                     ▼            ▼           │ setpoints
               ┌──────────────┐ ┌──────────────▼───┐
               │ depth_hold   │ │ heading_control  │
               │   (PID)      │ │     (PID)        │
