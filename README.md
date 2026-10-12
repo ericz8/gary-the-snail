@@ -2,7 +2,7 @@
 
 A ROS 2 package for autonomous control of a [BlueROV2](https://bluerobotics.com/store/rov/bluerov2/) underwater vehicle, developed for the MIT Beaver Works Summer Institute Autonomous Underwater Vehicles program.
 
-The package implements closed-loop depth and heading stabilization, an AprilTag-based vision pipeline for detecting and pursuing another ROV, lane following from the downward camera, and a scripted open-loop maneuver routine. Vehicle I/O is handled through [`rosmav`](https://github.com/BWSI-UAV/rosmav), which bridges ROS 2 to the ArduSub flight controller over MAVLink.
+The package implements closed-loop depth and heading stabilization, an AprilTag-based vision pipeline for detecting and pursuing another ROV, lane following from the downward camera, and a scripted open-loop maneuver routine. Vehicle I/O is handled through [`rosmav`](https://github.com/blksail-edu/rosmav), which bridges ROS 2 to the ArduSub flight controller over MAVLink.
 
 ---
 
